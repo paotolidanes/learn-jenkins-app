@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'current-alpine3.21'
+            image 'node:current-alpine3.21'
             reuseNode true
         }
     }
