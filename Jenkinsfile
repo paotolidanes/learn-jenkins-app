@@ -18,34 +18,39 @@ pipeline {
         //         '''
         //     }
         // }
-        stage('test') {
-            agent {
-                docker {
-                    image 'node:current-alpine3.21'
-                    reuseNode true
+
+        stage('Run Tests') {
+            parallel {
+                stage('test') {
+                    agent {
+                        docker {
+                            image 'node:current-alpine3.21'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            npm test
+                        '''
+                    }
                 }
-            }
-            steps {
-                sh '''
-                    npm test
-                '''
-            }
-        }
-        stage('E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.52.0-noble'
-                    reuseNode true
-                    args '-u root:root'
+                stage('E2E') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            reuseNode true
+                            args '-u root:root'
+                        }
+                    }
+                    steps {
+                        sh '''
+                            npm install serve
+                            ./node_modules/.bin/serve -s build &
+                            sleep 10s
+                            npx playwright test --reporter=html
+                        '''
+                    }
                 }
-            }
-            steps {
-                sh '''
-                    npm install serve
-                    ./node_modules/.bin/serve -s build &
-                    sleep 10s
-                    npx playwright test --reporter=html
-                '''
             }
         }
     }
