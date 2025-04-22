@@ -1,6 +1,5 @@
 pipeline {
-    agent none
-
+    agent any
     stages {
         stage('Build') {
             agent {
@@ -8,7 +7,7 @@ pipeline {
                     image 'node:current-alpine3.21'
                     reuseNode true
                 }
-            }            
+            }
             steps {
                 sh '''
                     ls -la
@@ -19,24 +18,22 @@ pipeline {
                 '''
             }
         }
-        
         stage('E2E') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.52.0-noble'
                     reuseNode true
                 }
-            }            
+            }
             steps {
                 sh '''
-                    npm install -g  serve
-                    serve -s build
+                    npm install -g serve
+                    ./node_modules/.bin/serve -s build
                     npx playwright test
                 '''
             }
         }
     }
-
     post {
         always {
             junit 'test-results/junit.xml'
