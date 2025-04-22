@@ -21,14 +21,14 @@ pipeline {
 
         stage('Run Tests') {
             parallel {
-                stage('test') {
+                stage('Unit Test') {
                     agent {
                         docker {
                             image 'node:current-alpine3.21'
                             reuseNode true
                         }
                     }
-                    
+
                     steps {
                         sh '''
                             npm test
@@ -38,11 +38,10 @@ pipeline {
                     post {
                         always {
                             junit 'jest-results/junit.xml'
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
                 }
-                stage('E2E') {
+                stage('E2E Test') {
                     agent {
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -62,7 +61,6 @@ pipeline {
 
                     post {
                         always {
-                            junit 'jest-results/junit.xml'
                             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
                         }
                     }
