@@ -18,6 +18,19 @@ pipeline {
         //         '''
         //     }
         // }
+        stage('test') {
+            agent {
+                docker {
+                    image 'node:current-alpine3.21'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    npm test
+                '''
+            }
+        }
         stage('E2E') {
             agent {
                 docker {
@@ -28,7 +41,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install -g serve
+                    npm install serve
                     ./node_modules/.bin/serve -s build &
                     sleep 10s
                     npx playwright test --reporter=html
