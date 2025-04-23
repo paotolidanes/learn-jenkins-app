@@ -8,6 +8,12 @@ pipeline {
     }
     
     stages {
+        stage('Docker') {
+            steps {
+                sh 'docker build -t my-playwright .'
+            }
+        }
+
         stage('Build') {
             agent {
                 docker {
@@ -62,7 +68,7 @@ pipeline {
 
                     steps {
                         sh '''
-                            npm install serve
+                            #npm install serve
                             ./node_modules/.bin/serve -s build &
                             sleep 10s
                             npx playwright test --reporter=html
@@ -134,7 +140,7 @@ pipeline {
             steps {
                 sh '''
                     node --version
-                    npm install netlify-cli
+                    #npm install netlify-cli
                     ./node_modules/.bin/netlify --version
                     ./node_modules/.bin/netlify status
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
