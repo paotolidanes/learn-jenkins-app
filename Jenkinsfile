@@ -107,12 +107,11 @@ pipeline {
 
             steps {
                 sh '''
-                    #npm install netlify-cli node-jq
-                    ./node_modules/.bin/netlify --version
-                    ./node_modules/.bin/netlify status
+                    netlify --version
+                    netlify status
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                    ./node_modules/.bin/netlify deploy --dir=build --json > deploy-staging-output.json
-                    CI_ENVIRONMENT_URL=$(./node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json)
+                    netlify deploy --dir=build --json > deploy-staging-output.json
+                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-staging-output.json)
                     npx playwright test --reporter=html
                 '''
             }
@@ -140,11 +139,10 @@ pipeline {
             steps {
                 sh '''
                     node --version
-                    #npm install netlify-cli
-                    ./node_modules/.bin/netlify --version
-                    ./node_modules/.bin/netlify status
+                    netlify --version
+                    netlify status
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    ./node_modules/.bin/netlify deploy --dir=build --prod
+                    netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
                 '''
             }
