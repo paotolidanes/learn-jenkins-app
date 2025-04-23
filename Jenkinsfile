@@ -96,6 +96,12 @@ pipeline {
             }
         }
 
+        stage('Approval to Prod') {
+            steps {
+                input cancel: 'Denied', message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
+            }
+        }
+
         stage('Deploy to Prod') {
             agent {
                 docker {
