@@ -7,6 +7,7 @@ pipeline {
                 docker {
                     image 'node:current-alpine3.21'
                     reuseNode true
+                    args '-u root:root'
                 }
             }
             steps {
@@ -22,11 +23,13 @@ pipeline {
 
         stage('Run Tests') {
             parallel {
+
                 stage('Unit Test') {
                     agent {
                         docker {
                             image 'node:current-alpine3.21'
                             reuseNode true
+                            args '-u root:root'
                         }
                     }
 
@@ -42,6 +45,7 @@ pipeline {
                         }
                     }
                 }
+
                 stage('E2E Test') {
                     agent {
                         docker {
@@ -74,6 +78,7 @@ pipeline {
                 docker {
                     image 'node:current-alpine3.21'
                     reuseNode true
+                    args '-u root:root'
                 }
             }
             steps {
