@@ -60,7 +60,7 @@ pipeline {
                 stage('E2E Test') {
                     agent {
                         docker {
-                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            image 'my-playwright'
                             reuseNode true
                             args '-u root:root'
                         }
@@ -68,7 +68,7 @@ pipeline {
 
                     steps {
                         sh '''
-                            #npm install serve
+                            npm install serve
                             ./node_modules/.bin/serve -s build &
                             sleep 10s
                             npx playwright test --reporter=html
@@ -95,7 +95,7 @@ pipeline {
         stage('Deploy to Staging') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'my-playwright'
                     reuseNode true
                     args '-u root:root'
                 }
@@ -107,7 +107,7 @@ pipeline {
 
             steps {
                 sh '''
-                    npm install netlify-cli node-jq
+                    #npm install netlify-cli node-jq
                     ./node_modules/.bin/netlify --version
                     ./node_modules/.bin/netlify status
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
@@ -127,7 +127,7 @@ pipeline {
         stage('Deploy to Prod') {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'my-playwright'
                     reuseNode true
                     args '-u root:root'
                 }
