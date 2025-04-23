@@ -77,29 +77,6 @@ pipeline {
             }
         }
 
-        stage('Deploy to Staging') {
-            agent {
-                docker {
-                    image 'node:current-alpine3.21'
-                    reuseNode true
-                    args '-u root:root'
-                }
-            }
-            steps {
-                sh '''
-                    npm install netlify-cli node-jq
-                    ./node_modules/.bin/netlify --version
-                    ./node_modules/.bin/netlify status
-                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                    ./node_modules/.bin/netlify deploy --dir=build --json > deploy-staging-output.json
-                    ./node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json
-                '''
-                script {
-                    env.STAGING_URL = sh(script: "./node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json", returnStdout: true)
-                }
-            }
-        }
-
         stage('Approval to Prod') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
@@ -108,7 +85,7 @@ pipeline {
             }
         }
 
-        stage('Staging E2E Test') {
+        stage('Deploy to Staging') {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -118,11 +95,17 @@ pipeline {
             }
 
             environment {
-                CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
+                CI_ENVIRONMENT_URL = ""
             }
 
             steps {
                 sh '''
+                    npm install netlify-cli node-jq
+                    ./node_modules/.bin/netlify --version
+                    ./node_modules/.bin/netlify status
+                    echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
+                    ./node_modules/.bin/netlify deploy --dir=build --json > deploy-staging-output.json
+                    CI_ENVIRONMENT_URL=$(./node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json)
                     npx playwright test --reporter=html
                 '''
             }
